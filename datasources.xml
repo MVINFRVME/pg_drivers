@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Definition — путь к schema ВНУТРИ deployed emondrian (WEB-INF/schema/...).
+  URL — XMLA для клиентов (Excel и т.д.): хост:порт как с хоста сервера (проброс compose, у тебя 18081→8080).
+  Jdbc=… — хост Postgres с точки зрения контейнера; ниже пример IP — подставь свой.
+-->
+<DataSources>
+  <DataSource>
+    <DataSourceName>analytics_new</DataSourceName>
+    <DataSourceDescription>Postgres analytics_new — куб X5 остатки/продажи</DataSourceDescription>
+    <URL>http://185.12.30.115:18080/emondrian/xmla</URL>
+    <DataSourceInfo>Provider=mondrian;Jdbc=jdbc:postgresql://185.12.30.115:5432/analytics_new;JdbcUser=mondrian_user;JdbcPassword=REPLACE_ME;JdbcDrivers=org.postgresql.Driver</DataSourceInfo>
+    <ProviderName>Mondrian</ProviderName>
+    <ProviderType>MDP</ProviderType>
+    <AuthenticationMode>Unauthenticated</AuthenticationMode>
+    <Catalogs>
+      <Catalog name="X5InventorySales">
+        <Definition>/WEB-INF/schema/x5_inventory_sales_schema.xml</Definition>
+      </Catalog>
+    </Catalogs>
+  </DataSource>
+</DataSources>
