@@ -5,7 +5,7 @@
   Уточни значения: SELECT count(distinct "col") FROM x5.x5_inventory_sales_mv;
 -->
 <Schema name="x5_inventory_sales_schema" caption="X5 — остатки и продажи">
-<Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover">
+<Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover" cache="true">
 
   <Table name="x5_inventory_sales_mv" schema="x5" />
 
