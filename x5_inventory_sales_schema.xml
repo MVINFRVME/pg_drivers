@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Фрагмент куба для Mondrian / eMondrian.
-  Обертку <Schema> и datasource при необходимости добавляет сам редактор или сервер.
+  Полная схема Mondrian / eMondrian для файла WEB-INF/schema/x5_inventory_sales_schema.xml
 -->
+<Schema name="x5_inventory_sales_schema" caption="X5 — остатки и продажи">
 <Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover">
 
   <Table name="x5_inventory_sales_mv" schema="x5" />
@@ -57,3 +57,4 @@
   <Measure name="distinct_plant_count" column="plant" aggregator="distinct-count" caption="Магазинов" />
 
 </Cube>
+</Schema>
