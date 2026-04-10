@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Фрагмент куба для Mondrian / eMondrian.
+  Обертку <Schema> и datasource при необходимости добавляет сам редактор или сервер.
+-->
+<Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover">
+
+  <Table name="x5_inventory_sales_mv" schema="x5" />
+
+  <!-- Время: name латиницей для MDX; caption — русский UI. type=TimeDimension — time-функции в MDX (ограничены одним уровнем «день»). -->
+  <Dimension name="date" caption="Дата" foreignKey="day" type="TimeDimension">
+    <Hierarchy name="calendar" caption="Календарь" hasAll="true" primaryKey="day">
+      <Table name="x5_inventory_sales_mv" schema="x5" />
+      <Level name="day" column="day" type="Date" uniqueMembers="true" caption="День" />
+    </Hierarchy>
+  </Dimension>
+
+  <!-- Лист иерархии должен совпадать с foreignKey (plu); pluname только подпись. Иначе разные PLU с одинаковым названием ломают иерархию. -->
+  <Dimension name="product" caption="Товар" foreignKey="plu">
+    <Hierarchy name="product_hierarchy" caption="Товарная иерархия" hasAll="true" primaryKey="plu">
+      <Table name="x5_inventory_sales_mv" schema="x5" />
+      <Level name="category4" column="category4name" uniqueMembers="false" caption="Категория 4" />
+      <Level name="plu" column="plu" nameColumn="pluname" uniqueMembers="true" caption="Товар (PLU)" />
+    </Hierarchy>
+  </Dimension>
+
+  <!-- Ключ магазина — plant; адрес и прочее не уникальны как лист. -->
+  <Dimension name="store" caption="География" foreignKey="plant">
+    <Hierarchy name="store_hierarchy" caption="Адресная иерархия" hasAll="true" primaryKey="plant">
+      <Table name="x5_inventory_sales_mv" schema="x5" />
+      <Level name="region" column="regionname" uniqueMembers="false" caption="Регион" />
+      <Level name="city" column="citygenerated" uniqueMembers="false" caption="Город" />
+      <Level name="format" column="formatname" uniqueMembers="false" caption="Формат" />
+      <Level name="branch" column="level1name" uniqueMembers="false" caption="Филиал" />
+      <Level name="warehouse_type" column="typeshop" uniqueMembers="false" caption="Тип склада" />
+      <Level name="plant" column="plant" nameColumn="addresstext" uniqueMembers="true" caption="Магазин" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="stock_type" caption="Тип запаса" foreignKey="stock_type">
+    <Hierarchy name="stock_type_hierarchy" caption="Тип запаса" hasAll="true" primaryKey="stock_type">
+      <Table name="x5_inventory_sales_mv" schema="x5" />
+      <Level name="stock_type_level" column="stock_type" uniqueMembers="false" caption="Тип" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="promo" caption="Промо" foreignKey="is_promo">
+    <Hierarchy name="promo_hierarchy" caption="Промо" hasAll="true" primaryKey="is_promo">
+      <Table name="x5_inventory_sales_mv" schema="x5" />
+      <Level name="is_promo_level" column="is_promo" uniqueMembers="false" caption="Промо" />
+    </Hierarchy>
+  </Dimension>
+
+  <Measure name="inventory_quantity" column="count" aggregator="sum" caption="Остаток, шт" datatype="Numeric" />
+  <Measure name="turnover" column="turnover" aggregator="sum" caption="Оборот, руб" datatype="Numeric" />
+  <Measure name="distinct_plu_count" column="plu" aggregator="distinct-count" caption="Уникальных PLU" />
+  <Measure name="distinct_plant_count" column="plant" aggregator="distinct-count" caption="Магазинов" />
+
+</Cube>
