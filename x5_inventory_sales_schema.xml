@@ -22,7 +22,8 @@
     <Hierarchy name="product_hierarchy" caption="Товарная иерархия" hasAll="true" primaryKey="plu">
       <Table name="x5_inventory_sales_mv_30d" schema="x5" />
       <Level name="category4" column="category4name" uniqueMembers="false" approximateCardinality="800" caption="Категория 4" />
-      <Level name="plu" column="plu" nameColumn="pluname" uniqueMembers="true" approximateCardinality="200000" caption="Товар (PLU)" />
+      <!-- type=Integer: иначе в SQL уходят литералы 4412946.0 → PostgreSQL bigint падает с invalid input syntax -->
+      <Level name="plu" column="plu" nameColumn="pluname" type="Integer" uniqueMembers="true" approximateCardinality="200000" caption="Товар (PLU)" />
     </Hierarchy>
   </Dimension>
 
@@ -55,7 +56,7 @@
 
   <Measure name="inventory_quantity" column="count" aggregator="sum" caption="Остаток" datatype="Numeric" />
   <Measure name="turnover" column="turnover" aggregator="sum" caption="Оборот" datatype="Numeric" />
-  <Measure name="distinct_plu_count" column="plu" aggregator="distinct-count" caption="Уникальных PLU" />
+  <Measure name="distinct_plu_count" column="plu" aggregator="distinct-count" datatype="Integer" caption="Уникальных PLU" />
   <Measure name="distinct_plant_count" column="plant" aggregator="distinct-count" caption="Магазинов" />
 
 </Cube>
