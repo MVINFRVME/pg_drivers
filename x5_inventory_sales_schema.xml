@@ -53,8 +53,8 @@
     </Hierarchy>
   </Dimension>
 
-  <Measure name="inventory_quantity" column="count" aggregator="sum" caption="Остаток, шт" datatype="Numeric" />
-  <Measure name="turnover" column="turnover" aggregator="sum" caption="Оборот, руб" datatype="Numeric" />
+  <Measure name="inventory_quantity" column="count" aggregator="sum" caption="Остаток" datatype="Numeric" />
+  <Measure name="turnover" column="turnover" aggregator="sum" caption="Оборот" datatype="Numeric" />
   <Measure name="distinct_plu_count" column="plu" aggregator="distinct-count" caption="Уникальных PLU" />
   <Measure name="distinct_plant_count" column="plant" aggregator="distinct-count" caption="Магазинов" />
 
