@@ -3,6 +3,8 @@
   Полная схема Mondrian / eMondrian для файла WEB-INF/schema/x5_inventory_sales_schema.xml
   approximateCardinality — подсказка для XMLA/Excel: без неё Mondrian делает COUNT(DISTINCT) по всей MV (десятки минут на 15 ГБ).
   Уточни значения: SELECT count(distinct "col") FROM x5.x5_inventory_sales_mv_30d;
+  Плоские измерения: в Excel поля не вложены в одну иерархию; ТТ и адрес — отдельные измерения (оба с ключом plant).
+  После смены имён измерений пересобери сводную: старые пути [product].[product_hierarchy]… / [store].[store_hierarchy]… не действуют.
 -->
 <Schema name="x5_inventory_sales_schema" caption="X5 — остатки и продажи">
 <Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover" cache="true">
@@ -17,26 +19,69 @@
     </Hierarchy>
   </Dimension>
 
-  <!-- Лист иерархии должен совпадать с foreignKey (plu); pluname только подпись. Иначе разные PLU с одинаковым названием ломают иерархию. -->
-  <Dimension name="product" caption="Товар" foreignKey="plu">
-    <Hierarchy name="product_hierarchy" caption="Товарная иерархия" hasAll="true" primaryKey="plu">
+  <!-- Товар: два независимых измерения (без вложенной иерархии категория→PLU). -->
+  <Dimension name="product_category4" caption="Категория 4" foreignKey="category4name">
+    <Hierarchy name="product_category4" caption="Категория 4" hasAll="true" primaryKey="category4name">
       <Table name="x5_inventory_sales_mv_30d" schema="x5" />
-      <Level name="category4" column="category4name" uniqueMembers="false" approximateCardinality="800" caption="Категория 4" />
-      <!-- type=Integer: иначе в SQL уходят литералы 4412946.0 → PostgreSQL bigint падает с invalid input syntax -->
+      <Level name="category4" column="category4name" type="String" uniqueMembers="false" approximateCardinality="800" caption="Категория 4" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="product_plu" caption="Товар (PLU)" foreignKey="plu">
+    <Hierarchy name="product_plu" caption="Товар (PLU)" hasAll="true" primaryKey="plu">
+      <Table name="x5_inventory_sales_mv_30d" schema="x5" />
+      <!-- type=Integer: иначе литералы 4412946.0 → PostgreSQL bigint invalid input syntax -->
       <Level name="plu" column="plu" nameColumn="pluname" type="Integer" uniqueMembers="true" approximateCardinality="200000" caption="Товар (PLU)" />
     </Hierarchy>
   </Dimension>
 
-  <!-- Ключ магазина — plant; адрес и прочее не уникальны как лист. -->
-  <Dimension name="store" caption="География" foreignKey="plant">
-    <Hierarchy name="store_hierarchy" caption="Адресная иерархия" hasAll="true" primaryKey="plant">
+  <!-- География: плоские поля; ТТ и адрес — разные измерения (ключ в обоих plant, у адреса подпись — addresstext). -->
+  <Dimension name="geo_region" caption="Регион" foreignKey="regionname">
+    <Hierarchy name="geo_region" caption="Регион" hasAll="true" primaryKey="regionname">
       <Table name="x5_inventory_sales_mv_30d" schema="x5" />
-      <Level name="region" column="regionname" uniqueMembers="false" approximateCardinality="100" caption="Регион" />
-      <Level name="city" column="citygenerated" uniqueMembers="false" approximateCardinality="5000" caption="Город" />
-      <Level name="format" column="formatname" uniqueMembers="false" approximateCardinality="50" caption="Формат" />
-      <Level name="branch" column="level1name" uniqueMembers="false" approximateCardinality="500" caption="Филиал" />
-      <Level name="warehouse_type" column="typeshop" uniqueMembers="false" approximateCardinality="30" caption="Тип склада" />
-      <Level name="plant" column="plant" nameColumn="addresstext" uniqueMembers="true" approximateCardinality="50000" caption="Магазин" />
+      <Level name="region" column="regionname" type="String" uniqueMembers="false" approximateCardinality="100" caption="Регион" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_city" caption="Город" foreignKey="citygenerated">
+    <Hierarchy name="geo_city" caption="Город" hasAll="true" primaryKey="citygenerated">
+      <Table name="x5_inventory_sales_mv_30d" schema="x5" />
+      <Level name="city" column="citygenerated" type="String" uniqueMembers="false" approximateCardinality="5000" caption="Город" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_format" caption="Формат" foreignKey="formatname">
+    <Hierarchy name="geo_format" caption="Формат" hasAll="true" primaryKey="formatname">
+      <Table name="x5_inventory_sales_mv_30d" schema="x5" />
+      <Level name="format" column="formatname" type="String" uniqueMembers="false" approximateCardinality="50" caption="Формат" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_branch" caption="Филиал" foreignKey="level1name">
+    <Hierarchy name="geo_branch" caption="Филиал" hasAll="true" primaryKey="level1name">
+      <Table name="x5_inventory_sales_mv_30d" schema="x5" />
+      <Level name="branch" column="level1name" type="String" uniqueMembers="false" approximateCardinality="500" caption="Филиал" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_warehouse_type" caption="Тип склада" foreignKey="typeshop">
+    <Hierarchy name="geo_warehouse_type" caption="Тип склада" hasAll="true" primaryKey="typeshop">
+      <Table name="x5_inventory_sales_mv_30d" schema="x5" />
+      <Level name="warehouse_type" column="typeshop" type="String" uniqueMembers="false" approximateCardinality="30" caption="Тип склада" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_trade_point" caption="ТТ" foreignKey="plant">
+    <Hierarchy name="geo_trade_point" caption="ТТ" hasAll="true" primaryKey="plant">
+      <Table name="x5_inventory_sales_mv_30d" schema="x5" />
+      <Level name="plant" column="plant" type="String" uniqueMembers="true" approximateCardinality="50000" caption="ТТ" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_address" caption="Адрес ТТ" foreignKey="plant">
+    <Hierarchy name="geo_address" caption="Адрес ТТ" hasAll="true" primaryKey="plant">
+      <Table name="x5_inventory_sales_mv_30d" schema="x5" />
+      <Level name="address" column="plant" nameColumn="addresstext" type="String" uniqueMembers="true" approximateCardinality="50000" caption="Адрес" />
     </Hierarchy>
   </Dimension>
 
@@ -57,7 +102,7 @@
   <Measure name="inventory_quantity" column="count" aggregator="sum" caption="Остаток" datatype="Numeric" />
   <Measure name="turnover" column="turnover" aggregator="sum" caption="Оборот" datatype="Numeric" />
   <Measure name="distinct_plu_count" column="plu" aggregator="distinct-count" datatype="Integer" caption="Уникальных PLU" />
-  <Measure name="distinct_plant_count" column="plant" aggregator="distinct-count" caption="Магазинов" />
+  <Measure name="distinct_plant_count" column="plant" aggregator="distinct-count" datatype="String" caption="Магазинов" />
 
 </Cube>
 </Schema>
