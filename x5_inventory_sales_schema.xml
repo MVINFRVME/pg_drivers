@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Schema name="x5_inventory_sales_schema" caption="X5 — остатки и продажи">
-<Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover" cache="true">
+<Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover" cache="false">
 
   <Table name="x5_inventory_sales_mv_30d" schema="x5" />
 
