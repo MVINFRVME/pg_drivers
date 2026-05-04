@@ -7,17 +7,17 @@
 
   <!-- Время: month_start/week_start в MV. Три иерархии: месяц, неделя ISO, только день (без rollup через месяц/неделю). -->
   <Dimension name="date" caption="Дата" foreignKey="day" type="TimeDimension">
-    <Hierarchy name="calendar" caption="Календарь (месяц)" hasAll="true" primaryKey="day">
+    <Hierarchy name="calendar" caption="Месяц" hasAll="true" primaryKey="day">
       <Table name="x5_inventory_sales_mv_30d" schema="x5" />
       <Level name="month" column="month_start" type="Date" levelType="TimeMonths" uniqueMembers="false" approximateCardinality="3" caption="Месяц" />
       <Level name="day" column="day" type="Date" levelType="TimeDays" uniqueMembers="true" approximateCardinality="35" caption="День" />
     </Hierarchy>
-    <Hierarchy name="by_week" caption="Недели" hasAll="true" primaryKey="day">
+    <Hierarchy name="by_week" caption="Неделя" hasAll="true" primaryKey="day">
       <Table name="x5_inventory_sales_mv_30d" schema="x5" />
       <Level name="week" column="week_start" type="Date" levelType="TimeWeeks" uniqueMembers="false" approximateCardinality="6" caption="Неделя" />
       <Level name="day" column="day" type="Date" levelType="TimeDays" uniqueMembers="true" approximateCardinality="35" caption="День" />
     </Hierarchy>
-    <Hierarchy name="by_day" caption="По дням" hasAll="true" primaryKey="day">
+    <Hierarchy name="by_day" caption="День" hasAll="true" primaryKey="day">
       <Table name="x5_inventory_sales_mv_30d" schema="x5" />
       <Level name="day_only" column="day" type="Date" levelType="TimeDays" uniqueMembers="true" approximateCardinality="35" caption="День" />
     </Hierarchy>
