@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ClickHouse: БД ch_analytics, таблица x5_inventory_sales. Колонки должны совпадать с PG MV (или правь уровни). -->
+<Schema name="ch_x5_inventory_sales_schema" caption="X5 — остатки и продажи (ClickHouse)">
+<Cube name="x5_inventory_sales" caption="Остатки и продажи X5" defaultMeasure="turnover" cache="true">
+
+  <Table name="x5_inventory_sales" schema="ch_analytics" />
+
+  <Dimension name="date" caption="Дата" foreignKey="day" type="TimeDimension">
+    <Hierarchy name="calendar" caption="Месяц" hasAll="true" primaryKey="day">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="month" column="month_start" type="Date" levelType="TimeMonths" uniqueMembers="false" approximateCardinality="3" caption="Месяц" />
+      <Level name="day" column="day" type="Date" levelType="TimeDays" uniqueMembers="true" approximateCardinality="35" caption="День" />
+    </Hierarchy>
+    <Hierarchy name="by_week" caption="Неделя" hasAll="true" primaryKey="day">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="week" column="week_start" type="Date" levelType="TimeWeeks" uniqueMembers="false" approximateCardinality="6" caption="Неделя" />
+      <Level name="day" column="day" type="Date" levelType="TimeDays" uniqueMembers="true" approximateCardinality="35" caption="День" />
+    </Hierarchy>
+    <Hierarchy name="by_day" caption="День" hasAll="true" primaryKey="day">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="day_only" column="day" type="Date" levelType="TimeDays" uniqueMembers="true" approximateCardinality="35" caption="День" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="product_category4" caption="Категория 4" foreignKey="category4name">
+    <Hierarchy name="product_category4" caption="Категория 4" hasAll="true" primaryKey="category4name">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="category4" column="category4name" type="String" uniqueMembers="false" approximateCardinality="800" caption="Категория 4" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="product_plu" caption="Товар (PLU)" foreignKey="plu">
+    <Hierarchy name="product_plu" caption="Товар (PLU)" hasAll="true" primaryKey="plu">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="plu" column="plu" nameColumn="pluname" type="Integer" uniqueMembers="true" approximateCardinality="200000" caption="Товар (PLU)" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_region" caption="Регион" foreignKey="regionname">
+    <Hierarchy name="geo_region" caption="Регион" hasAll="true" primaryKey="regionname">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="region" column="regionname" type="String" uniqueMembers="false" approximateCardinality="100" caption="Регион" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_territory" caption="Название территории (округа)" foreignKey="territoryname">
+    <Hierarchy name="geo_territory" caption="Название территории (округа)" hasAll="true" primaryKey="territoryname">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="territory" column="territoryname" type="String" uniqueMembers="false" approximateCardinality="300" caption="Название территории (округа)" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_city" caption="Город" foreignKey="citygenerated">
+    <Hierarchy name="geo_city" caption="Город" hasAll="true" primaryKey="citygenerated">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="city" column="citygenerated" type="String" uniqueMembers="false" approximateCardinality="5000" caption="Город" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_format" caption="Формат" foreignKey="formatname">
+    <Hierarchy name="geo_format" caption="Формат" hasAll="true" primaryKey="formatname">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="format" column="formatname" type="String" uniqueMembers="false" approximateCardinality="50" caption="Формат" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_branch" caption="Филиал" foreignKey="level1name">
+    <Hierarchy name="geo_branch" caption="Филиал" hasAll="true" primaryKey="level1name">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="branch" column="level1name" type="String" uniqueMembers="false" approximateCardinality="500" caption="Филиал" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_warehouse_type" caption="Тип склада" foreignKey="typeshop">
+    <Hierarchy name="geo_warehouse_type" caption="Тип склада" hasAll="true" primaryKey="typeshop">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="warehouse_type" column="typeshop" type="String" uniqueMembers="false" approximateCardinality="30" caption="Тип склада" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_trade_point" caption="ТТ" foreignKey="plant">
+    <Hierarchy name="geo_trade_point" caption="ТТ" hasAll="true" primaryKey="plant">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="plant" column="plant" type="String" uniqueMembers="true" approximateCardinality="50000" caption="ТТ" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="geo_address" caption="Адрес ТТ" foreignKey="plant">
+    <Hierarchy name="geo_address" caption="Адрес ТТ" hasAll="true" primaryKey="plant">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="address" column="plant" nameColumn="addresstext" type="String" uniqueMembers="true" approximateCardinality="50000" caption="Адрес" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="stock_type" caption="Тип запаса" foreignKey="stock_type">
+    <Hierarchy name="stock_type_hierarchy" caption="Тип запаса" hasAll="true" primaryKey="stock_type">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="stock_type_level" column="stock_type" uniqueMembers="false" approximateCardinality="50" caption="Тип" />
+    </Hierarchy>
+  </Dimension>
+
+  <Dimension name="promo" caption="Промо" foreignKey="is_promo">
+    <Hierarchy name="promo_hierarchy" caption="Промо" hasAll="true" primaryKey="is_promo">
+      <Table name="x5_inventory_sales" schema="ch_analytics" />
+      <Level name="is_promo_level" column="is_promo" uniqueMembers="false" approximateCardinality="4" caption="Промо" />
+    </Hierarchy>
+  </Dimension>
+
+  <Measure name="inventory_quantity" column="count" aggregator="sum" caption="Остаток" datatype="Numeric" />
+  <Measure name="turnover" column="turnover" aggregator="sum" caption="Оборот" datatype="Numeric" />
+  <Measure name="distinct_plu_count" column="plu" aggregator="distinct-count" datatype="Integer" caption="Уникальных PLU" />
+  <Measure name="distinct_plant_count" column="plant" aggregator="distinct-count" datatype="String" caption="Магазинов" />
+
+</Cube>
+</Schema>
